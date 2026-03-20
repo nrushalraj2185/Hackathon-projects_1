@@ -1,0 +1,22 @@
+packages:
+  "recharts": "For farm financial summaries, sensor data visualization, and market trends"
+  "framer-motion": "For page transitions and interactive element animations"
+  "date-fns": "For formatting dates in weather, crops, and financial views"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to merge tailwind classes safely"
+  "@hookform/resolvers": "Validation for forms"
+  "react-hook-form": "Form state management"
+  "zod": "Schema validation for forms"
+
+images:
+  - path: "artifacts/agrismart/public/images/hero-agri.png"
+    description: "Beautiful modern smart farm with lush green fields at sunrise, soft warm lighting, technological elements subtly blended in"
+    aspect_ratio: "16:9"
+  - path: "artifacts/agrismart/public/images/crop-health-bg.png"
+    description: "Abstract macro close-up of a healthy green leaf with glowing digital scanning grid lines overlay"
+    aspect_ratio: "16:9"
+
+notes:
+  - Using generated hooks from @workspace/api-client-react for all data fetching.
+  - Assuming English/Hindi basic translation via a simple context for demonstration.
+  - Adding offline detection via window online/offline events.

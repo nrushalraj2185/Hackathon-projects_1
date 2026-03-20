@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "AgriSmart - Agriculture Platform"
+version = "1.0.0"
+id = "artifacts/agrismart"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19937
+
+[services.development]
+run = "pnpm --filter @workspace/agrismart run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/agrismart", "run", "build" ]
+publicDir = "artifacts/agrismart/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19937"
+BASE_PATH = "/"

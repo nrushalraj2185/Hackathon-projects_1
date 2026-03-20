@@ -16,11 +16,30 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 
+## AgriSmart Platform Features
+
+The main artifact is **AgriSmart** (`artifacts/agrismart`) — a comprehensive agriculture platform:
+
+- **Dashboard** — Weather, crop status, financial overview, alerts
+- **Crops** — CRUD for crop records with health status tracking
+- **Crop Health Scanner** — AI-powered disease/pest diagnosis from crop description
+- **Weather** — 7-day forecast + weather alerts with farm recommendations
+- **Marketplace** — Live market prices (8 crops) + buy/sell listings
+- **Farm Management** — Expenses, income, inventory, livestock records
+- **Labor Marketplace** — Post/find farm labor jobs
+- **Equipment Rental** — Machinery listing and booking (PS-03)
+- **Transport Logistics** — Doorstep produce pickup requests (PS-01)
+- **Government Schemes** — 7 schemes (PM-KISAN, PMFBY, KCC, etc.) (PS-04)
+- **IoT Sensors** — Soil moisture, pH, NPK, temperature gauge dashboard
+- **Alerts** — Severity-based notification center
+- **Multilingual** — EN/Hindi toggle in header
+
 ## Structure
 
 ```text
 artifacts-monorepo/
 ├── artifacts/              # Deployable applications
+│   ├── agrismart/          # AgriSmart React+Vite frontend (at /)
 │   └── api-server/         # Express API server
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config

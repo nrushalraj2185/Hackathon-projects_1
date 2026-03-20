@@ -1,0 +1,1802 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: AgriSmart Agriculture Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: weather
+    description: Weather forecasting and alerts
+  - name: crops
+    description: Crop management and health
+  - name: marketplace
+    description: Market prices and listings
+  - name: farm
+    description: Farm management, expenses, inventory
+  - name: labor
+    description: Labor marketplace
+  - name: equipment
+    description: Equipment/machinery rental
+  - name: transport
+    description: Produce transport and logistics
+  - name: schemes
+    description: Government schemes and subsidies
+  - name: sensors
+    description: IoT sensor data
+  - name: alerts
+    description: Notifications and alerts
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /weather/current:
+    get:
+      operationId: getWeatherCurrent
+      tags: [weather]
+      summary: Get current weather for a location
+      parameters:
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Current weather data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeatherData"
+
+  /weather/forecast:
+    get:
+      operationId: getWeatherForecast
+      tags: [weather]
+      summary: Get 7-day weather forecast
+      parameters:
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Weather forecast
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeatherForecastDay"
+
+  /weather/alerts:
+    get:
+      operationId: getWeatherAlerts
+      tags: [weather]
+      summary: Get active weather alerts
+      responses:
+        "200":
+          description: Active weather alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WeatherAlert"
+
+  /crops:
+    get:
+      operationId: getCrops
+      tags: [crops]
+      summary: Get all crops for the farm
+      responses:
+        "200":
+          description: List of crops
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Crop"
+    post:
+      operationId: createCrop
+      tags: [crops]
+      summary: Add a new crop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCropInput"
+      responses:
+        "201":
+          description: Crop created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Crop"
+
+  /crops/{id}:
+    get:
+      operationId: getCropById
+      tags: [crops]
+      summary: Get crop details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Crop details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Crop"
+    patch:
+      operationId: updateCrop
+      tags: [crops]
+      summary: Update crop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCropInput"
+      responses:
+        "200":
+          description: Updated crop
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Crop"
+    delete:
+      operationId: deleteCrop
+      tags: [crops]
+      summary: Delete crop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /crops/scan:
+    post:
+      operationId: scanCropHealth
+      tags: [crops]
+      summary: AI-powered crop health scan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CropScanInput"
+      responses:
+        "200":
+          description: Crop health analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CropScanResult"
+
+  /marketplace/prices:
+    get:
+      operationId: getMarketPrices
+      tags: [marketplace]
+      summary: Get current market prices for crops
+      parameters:
+        - name: crop
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: market
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Market prices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MarketPrice"
+
+  /marketplace/listings:
+    get:
+      operationId: getMarketListings
+      tags: [marketplace]
+      summary: Get buy/sell listings
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [buy, sell]
+        - name: crop
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Market listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MarketListing"
+    post:
+      operationId: createMarketListing
+      tags: [marketplace]
+      summary: Create a buy/sell listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMarketListingInput"
+      responses:
+        "201":
+          description: Listing created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketListing"
+
+  /marketplace/listings/{id}:
+    delete:
+      operationId: deleteMarketListing
+      tags: [marketplace]
+      summary: Delete a listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /farm/expenses:
+    get:
+      operationId: getFarmExpenses
+      tags: [farm]
+      summary: Get farm expenses
+      responses:
+        "200":
+          description: Farm expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FarmExpense"
+    post:
+      operationId: createFarmExpense
+      tags: [farm]
+      summary: Add expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFarmExpenseInput"
+      responses:
+        "201":
+          description: Expense created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FarmExpense"
+
+  /farm/income:
+    get:
+      operationId: getFarmIncome
+      tags: [farm]
+      summary: Get farm income records
+      responses:
+        "200":
+          description: Farm income
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FarmIncome"
+    post:
+      operationId: createFarmIncome
+      tags: [farm]
+      summary: Add income record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFarmIncomeInput"
+      responses:
+        "201":
+          description: Income created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FarmIncome"
+
+  /farm/inventory:
+    get:
+      operationId: getFarmInventory
+      tags: [farm]
+      summary: Get farm inventory
+      responses:
+        "200":
+          description: Farm inventory
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+    post:
+      operationId: createInventoryItem
+      tags: [farm]
+      summary: Add inventory item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateInventoryItemInput"
+      responses:
+        "201":
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+
+  /farm/livestock:
+    get:
+      operationId: getLivestock
+      tags: [farm]
+      summary: Get livestock records
+      responses:
+        "200":
+          description: Livestock list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LivestockRecord"
+    post:
+      operationId: createLivestock
+      tags: [farm]
+      summary: Add livestock record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLivestockInput"
+      responses:
+        "201":
+          description: Livestock added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LivestockRecord"
+
+  /farm/summary:
+    get:
+      operationId: getFarmSummary
+      tags: [farm]
+      summary: Get farm financial summary
+      responses:
+        "200":
+          description: Farm financial summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FarmSummary"
+
+  /labor/jobs:
+    get:
+      operationId: getLaborJobs
+      tags: [labor]
+      summary: Get available labor job postings
+      parameters:
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Labor job listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LaborJob"
+    post:
+      operationId: createLaborJob
+      tags: [labor]
+      summary: Post a labor job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLaborJobInput"
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LaborJob"
+
+  /labor/jobs/{id}:
+    delete:
+      operationId: deleteLaborJob
+      tags: [labor]
+      summary: Delete a labor job posting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /equipment/listings:
+    get:
+      operationId: getEquipmentListings
+      tags: [equipment]
+      summary: Get available equipment for rent
+      parameters:
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Equipment listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EquipmentListing"
+    post:
+      operationId: createEquipmentListing
+      tags: [equipment]
+      summary: List equipment for rent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEquipmentListingInput"
+      responses:
+        "201":
+          description: Equipment listed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentListing"
+
+  /equipment/bookings:
+    post:
+      operationId: bookEquipment
+      tags: [equipment]
+      summary: Book equipment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookEquipmentInput"
+      responses:
+        "201":
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EquipmentBooking"
+    get:
+      operationId: getEquipmentBookings
+      tags: [equipment]
+      summary: Get equipment bookings
+      responses:
+        "200":
+          description: Equipment bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EquipmentBooking"
+
+  /transport/requests:
+    get:
+      operationId: getTransportRequests
+      tags: [transport]
+      summary: Get transport requests
+      responses:
+        "200":
+          description: Transport requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransportRequest"
+    post:
+      operationId: createTransportRequest
+      tags: [transport]
+      summary: Request produce transport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTransportRequestInput"
+      responses:
+        "201":
+          description: Transport request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportRequest"
+
+  /transport/requests/{id}:
+    patch:
+      operationId: updateTransportRequest
+      tags: [transport]
+      summary: Update transport request status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTransportStatusInput"
+      responses:
+        "200":
+          description: Updated transport request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransportRequest"
+
+  /schemes:
+    get:
+      operationId: getGovernmentSchemes
+      tags: [schemes]
+      summary: Get government schemes and subsidies
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Government schemes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GovernmentScheme"
+
+  /sensors/readings:
+    get:
+      operationId: getSensorReadings
+      tags: [sensors]
+      summary: Get latest IoT sensor readings
+      parameters:
+        - name: fieldId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Sensor readings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SensorReading"
+    post:
+      operationId: createSensorReading
+      tags: [sensors]
+      summary: Submit a sensor reading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSensorReadingInput"
+      responses:
+        "201":
+          description: Reading stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SensorReading"
+
+  /alerts:
+    get:
+      operationId: getAlerts
+      tags: [alerts]
+      summary: Get all alerts
+      parameters:
+        - name: unread
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
+  /alerts/{id}/read:
+    post:
+      operationId: markAlertRead
+      tags: [alerts]
+      summary: Mark alert as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Alert marked as read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    WeatherData:
+      type: object
+      properties:
+        location:
+          type: string
+        temperature:
+          type: number
+        humidity:
+          type: number
+        rainfall:
+          type: number
+        windSpeed:
+          type: number
+        condition:
+          type: string
+        icon:
+          type: string
+        feelsLike:
+          type: number
+        uvIndex:
+          type: number
+        visibility:
+          type: number
+        updatedAt:
+          type: string
+      required:
+        - location
+        - temperature
+        - humidity
+        - condition
+        - updatedAt
+
+    WeatherForecastDay:
+      type: object
+      properties:
+        date:
+          type: string
+        high:
+          type: number
+        low:
+          type: number
+        rainfall:
+          type: number
+        condition:
+          type: string
+        icon:
+          type: string
+        humidity:
+          type: number
+        recommendation:
+          type: string
+      required:
+        - date
+        - high
+        - low
+        - condition
+
+    WeatherAlert:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        title:
+          type: string
+        description:
+          type: string
+        validFrom:
+          type: string
+        validUntil:
+          type: string
+      required:
+        - id
+        - type
+        - severity
+        - title
+        - description
+
+    Crop:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        variety:
+          type: string
+        fieldName:
+          type: string
+        areaHectares:
+          type: number
+        plantingDate:
+          type: string
+        expectedHarvestDate:
+          type: string
+        status:
+          type: string
+          enum: [planted, growing, flowering, harvesting, harvested]
+        healthStatus:
+          type: string
+          enum: [excellent, good, fair, poor, critical]
+        lastInspected:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - fieldName
+        - status
+        - healthStatus
+
+    CreateCropInput:
+      type: object
+      properties:
+        name:
+          type: string
+        variety:
+          type: string
+        fieldName:
+          type: string
+        areaHectares:
+          type: number
+        plantingDate:
+          type: string
+        expectedHarvestDate:
+          type: string
+        status:
+          type: string
+          enum: [planted, growing, flowering, harvesting, harvested]
+        notes:
+          type: string
+      required:
+        - name
+        - fieldName
+        - status
+
+    UpdateCropInput:
+      type: object
+      properties:
+        name:
+          type: string
+        variety:
+          type: string
+        fieldName:
+          type: string
+        areaHectares:
+          type: number
+        plantingDate:
+          type: string
+        expectedHarvestDate:
+          type: string
+        status:
+          type: string
+          enum: [planted, growing, flowering, harvesting, harvested]
+        healthStatus:
+          type: string
+          enum: [excellent, good, fair, poor, critical]
+        notes:
+          type: string
+
+    CropScanInput:
+      type: object
+      properties:
+        imageBase64:
+          type: string
+        cropId:
+          type: integer
+        cropName:
+          type: string
+        description:
+          type: string
+      required:
+        - cropName
+
+    CropScanResult:
+      type: object
+      properties:
+        diagnosis:
+          type: string
+        confidence:
+          type: number
+        severity:
+          type: string
+          enum: [none, mild, moderate, severe]
+        treatment:
+          type: string
+        preventionTips:
+          type: array
+          items:
+            type: string
+        affectedArea:
+          type: string
+        pestName:
+          type: string
+        diseaseName:
+          type: string
+      required:
+        - diagnosis
+        - confidence
+        - severity
+        - treatment
+
+    MarketPrice:
+      type: object
+      properties:
+        id:
+          type: integer
+        cropName:
+          type: string
+        market:
+          type: string
+        state:
+          type: string
+        pricePerQuintal:
+          type: number
+        minPrice:
+          type: number
+        maxPrice:
+          type: number
+        modalPrice:
+          type: number
+        unit:
+          type: string
+        priceChange:
+          type: number
+        priceChangePercent:
+          type: number
+        updatedAt:
+          type: string
+      required:
+        - id
+        - cropName
+        - market
+        - pricePerQuintal
+        - updatedAt
+
+    MarketListing:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [buy, sell]
+        cropName:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        pricePerUnit:
+          type: number
+        location:
+          type: string
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+        description:
+          type: string
+        quality:
+          type: string
+        status:
+          type: string
+          enum: [active, sold, expired]
+        createdAt:
+          type: string
+      required:
+        - id
+        - type
+        - cropName
+        - quantity
+        - pricePerUnit
+        - location
+        - status
+
+    CreateMarketListingInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [buy, sell]
+        cropName:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        pricePerUnit:
+          type: number
+        location:
+          type: string
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+        description:
+          type: string
+        quality:
+          type: string
+      required:
+        - type
+        - cropName
+        - quantity
+        - pricePerUnit
+        - location
+
+    FarmExpense:
+      type: object
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+        cropId:
+          type: integer
+        cropName:
+          type: string
+        paymentMethod:
+          type: string
+        receipt:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - category
+        - description
+        - amount
+        - date
+
+    CreateFarmExpenseInput:
+      type: object
+      properties:
+        category:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+        cropId:
+          type: integer
+        cropName:
+          type: string
+        paymentMethod:
+          type: string
+      required:
+        - category
+        - description
+        - amount
+        - date
+
+    FarmIncome:
+      type: object
+      properties:
+        id:
+          type: integer
+        source:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+        cropId:
+          type: integer
+        cropName:
+          type: string
+        buyer:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - source
+        - amount
+        - date
+
+    CreateFarmIncomeInput:
+      type: object
+      properties:
+        source:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+        cropId:
+          type: integer
+        cropName:
+          type: string
+        buyer:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+      required:
+        - source
+        - amount
+        - date
+
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        minQuantity:
+          type: number
+        location:
+          type: string
+        expiryDate:
+          type: string
+        purchaseDate:
+          type: string
+        cost:
+          type: number
+        supplier:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - category
+        - quantity
+        - unit
+
+    CreateInventoryItemInput:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        minQuantity:
+          type: number
+        location:
+          type: string
+        expiryDate:
+          type: string
+        purchaseDate:
+          type: string
+        cost:
+          type: number
+        supplier:
+          type: string
+        notes:
+          type: string
+      required:
+        - name
+        - category
+        - quantity
+        - unit
+
+    LivestockRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        breed:
+          type: string
+        count:
+          type: integer
+        tagId:
+          type: string
+        age:
+          type: integer
+        health:
+          type: string
+          enum: [healthy, sick, treatment, quarantine]
+        lastVaccination:
+          type: string
+        nextVaccination:
+          type: string
+        breedingDate:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - type
+        - count
+        - health
+
+    CreateLivestockInput:
+      type: object
+      properties:
+        type:
+          type: string
+        breed:
+          type: string
+        count:
+          type: integer
+        tagId:
+          type: string
+        age:
+          type: integer
+        health:
+          type: string
+          enum: [healthy, sick, treatment, quarantine]
+        lastVaccination:
+          type: string
+        nextVaccination:
+          type: string
+        breedingDate:
+          type: string
+        notes:
+          type: string
+      required:
+        - type
+        - count
+        - health
+
+    FarmSummary:
+      type: object
+      properties:
+        totalIncome:
+          type: number
+        totalExpenses:
+          type: number
+        netProfit:
+          type: number
+        totalCrops:
+          type: integer
+        activeCrops:
+          type: integer
+        totalLivestock:
+          type: integer
+        pendingAlerts:
+          type: integer
+        monthlyIncome:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonthlyData"
+        monthlyExpenses:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonthlyData"
+      required:
+        - totalIncome
+        - totalExpenses
+        - netProfit
+        - totalCrops
+        - activeCrops
+        - totalLivestock
+        - pendingAlerts
+
+    MonthlyData:
+      type: object
+      properties:
+        month:
+          type: string
+        amount:
+          type: number
+      required:
+        - month
+        - amount
+
+    LaborJob:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        date:
+          type: string
+        duration:
+          type: string
+        wage:
+          type: number
+        wageUnit:
+          type: string
+          enum: [per_day, per_hour, fixed]
+        workersNeeded:
+          type: integer
+        workersApplied:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: string
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+        status:
+          type: string
+          enum: [open, filled, closed]
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - location
+        - date
+        - wage
+        - wageUnit
+        - workersNeeded
+        - status
+
+    CreateLaborJobInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          type: string
+        date:
+          type: string
+        duration:
+          type: string
+        wage:
+          type: number
+        wageUnit:
+          type: string
+          enum: [per_day, per_hour, fixed]
+        workersNeeded:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: string
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+      required:
+        - title
+        - location
+        - date
+        - wage
+        - wageUnit
+        - workersNeeded
+
+    EquipmentListing:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        ratePerDay:
+          type: number
+        location:
+          type: string
+        ownerName:
+          type: string
+        ownerPhone:
+          type: string
+        available:
+          type: boolean
+        availableFrom:
+          type: string
+        availableTo:
+          type: string
+        condition:
+          type: string
+          enum: [excellent, good, fair, poor]
+        brand:
+          type: string
+        model:
+          type: string
+        yearOfMake:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - type
+        - ratePerDay
+        - location
+        - ownerName
+        - available
+
+    CreateEquipmentListingInput:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        ratePerDay:
+          type: number
+        location:
+          type: string
+        ownerName:
+          type: string
+        ownerPhone:
+          type: string
+        availableFrom:
+          type: string
+        availableTo:
+          type: string
+        condition:
+          type: string
+          enum: [excellent, good, fair, poor]
+        brand:
+          type: string
+        model:
+          type: string
+        yearOfMake:
+          type: integer
+      required:
+        - name
+        - type
+        - ratePerDay
+        - location
+        - ownerName
+
+    EquipmentBooking:
+      type: object
+      properties:
+        id:
+          type: integer
+        equipmentId:
+          type: integer
+        equipmentName:
+          type: string
+        fromDate:
+          type: string
+        toDate:
+          type: string
+        totalDays:
+          type: integer
+        totalCost:
+          type: number
+        farmerName:
+          type: string
+        farmerPhone:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, active, completed, cancelled]
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - equipmentId
+        - equipmentName
+        - fromDate
+        - toDate
+        - status
+
+    BookEquipmentInput:
+      type: object
+      properties:
+        equipmentId:
+          type: integer
+        fromDate:
+          type: string
+        toDate:
+          type: string
+        farmerName:
+          type: string
+        farmerPhone:
+          type: string
+        notes:
+          type: string
+      required:
+        - equipmentId
+        - fromDate
+        - toDate
+        - farmerName
+
+    TransportRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        farmerName:
+          type: string
+        farmerPhone:
+          type: string
+        pickupLocation:
+          type: string
+        dropLocation:
+          type: string
+        cropType:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        scheduledDate:
+          type: string
+        scheduledTime:
+          type: string
+        status:
+          type: string
+          enum: [pending, accepted, in_transit, delivered, cancelled]
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+        estimatedCost:
+          type: number
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - farmerName
+        - pickupLocation
+        - dropLocation
+        - cropType
+        - quantity
+        - scheduledDate
+        - status
+
+    CreateTransportRequestInput:
+      type: object
+      properties:
+        farmerName:
+          type: string
+        farmerPhone:
+          type: string
+        pickupLocation:
+          type: string
+        dropLocation:
+          type: string
+        cropType:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        scheduledDate:
+          type: string
+        scheduledTime:
+          type: string
+        notes:
+          type: string
+      required:
+        - farmerName
+        - pickupLocation
+        - dropLocation
+        - cropType
+        - quantity
+        - scheduledDate
+
+    UpdateTransportStatusInput:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, accepted, in_transit, delivered, cancelled]
+        driverName:
+          type: string
+        driverPhone:
+          type: string
+        estimatedCost:
+          type: number
+      required:
+        - status
+
+    GovernmentScheme:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        ministry:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        benefit:
+          type: string
+        eligibility:
+          type: array
+          items:
+            type: string
+        documents:
+          type: array
+          items:
+            type: string
+        applicationProcess:
+          type: string
+        deadline:
+          type: string
+        website:
+          type: string
+        state:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - id
+        - name
+        - category
+        - description
+        - benefit
+        - isActive
+
+    SensorReading:
+      type: object
+      properties:
+        id:
+          type: integer
+        fieldId:
+          type: string
+        fieldName:
+          type: string
+        soilMoisture:
+          type: number
+        soilPh:
+          type: number
+        soilTemperature:
+          type: number
+        nitrogen:
+          type: number
+        phosphorus:
+          type: number
+        potassium:
+          type: number
+        airTemperature:
+          type: number
+        airHumidity:
+          type: number
+        lightIntensity:
+          type: number
+        timestamp:
+          type: string
+      required:
+        - id
+        - fieldId
+        - timestamp
+
+    CreateSensorReadingInput:
+      type: object
+      properties:
+        fieldId:
+          type: string
+        fieldName:
+          type: string
+        soilMoisture:
+          type: number
+        soilPh:
+          type: number
+        soilTemperature:
+          type: number
+        nitrogen:
+          type: number
+        phosphorus:
+          type: number
+        potassium:
+          type: number
+        airTemperature:
+          type: number
+        airHumidity:
+          type: number
+        lightIntensity:
+          type: number
+      required:
+        - fieldId
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [weather, pest, irrigation, market, equipment, transport, general]
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        title:
+          type: string
+        message:
+          type: string
+        isRead:
+          type: boolean
+        actionRequired:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - type
+        - severity
+        - title
+        - message
+        - isRead
